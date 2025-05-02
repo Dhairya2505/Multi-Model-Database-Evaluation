@@ -1,6 +1,7 @@
 import express from 'express';
 import { pg_store_details } from './routes/pg/store_details.js';
 import { get_students } from './routes/pg/get_students.js';
+import { get_courses } from './routes/pg/get_courses.js';
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 // Routes
 app.post('/pg-insert-detail', pg_store_details);
 app.get('/students', get_students);
+app.get('/courses', get_courses);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
