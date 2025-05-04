@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { enrollStudent, getQueryTimes } from "@/lib/actions"
 import { toast } from "sonner"
 import { QueryTimeDisplay } from "@/components/query-time-display"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -22,7 +21,8 @@ export function SimpleEnrollmentForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [studentName, setStudentName] = useState("")
-  const [queryTimes, setQueryTimes] = useState(0)
+  const [pgqueryTimes, setpgQueryTimes] = useState(0)
+  const [mongoqueryTimes, setmongoQueryTimes] = useState(0)
   const [students, setStudents] = useState<null | student[]>(null);
   const [courses, setCourses] = useState<string[]>([]);
 
@@ -42,6 +42,9 @@ export function SimpleEnrollmentForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    setpgQueryTimes(0);
+    setmongoQueryTimes(0);
+
     if (!studentName) {
       toast("Validation Error", {
         description: "Please enter a student name"
@@ -53,14 +56,19 @@ export function SimpleEnrollmentForm() {
 
     try {
 
-      const time = Date.now()
-      const res = await axios.post(`http://localhost:8000/student`, {
+      let time = Date.now()
+      const res1 = await axios.post(`http://localhost:8000/pg-student`, {
         student: studentName
       })
+      setCourses(res1.data.courses)
+      setpgQueryTimes(Date.now() - time);
 
-      setCourses(res.data.courses)
-
-      setQueryTimes(Date.now() - time);
+      time = Date.now()
+      const res2 = await axios.post(`http://localhost:8000/mongo-student`, {
+        student: studentName
+      })
+      setmongoQueryTimes(Date.now() - time);
+      setCourses(res2.data.courses)
 
       setStudentName("")
 
@@ -123,7 +131,7 @@ export function SimpleEnrollmentForm() {
             {isLoading ? "Processing..." : "Enroll Student"}
           </Button>
 
-          <QueryTimeDisplay type={"Read"} queryTimes={queryTimes} />
+          <QueryTimeDisplay type={"Read"} pgqueryTimes={pgqueryTimes} mongoQueryTimes={mongoqueryTimes}/>
         </CardFooter>
       </form>
     </Card>

@@ -30,7 +30,8 @@ export function CompleteEnrollmentForm() {
     studentName: "",
     course: "",
   })
-  const [writeQueryTimes, setWriteQueryTimes] = useState(0)
+  const [pgQueryTimes, setpgQueryTimes] = useState(0)
+  const [mongoQueryTimes, setmongoQueryTimes] = useState(0)
 
   const [students, setStudents] = useState<null | student[]>(null);
   const [courses, setCourses] = useState<null | course[]>(null);
@@ -58,8 +59,10 @@ export function CompleteEnrollmentForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setWriteQueryTimes(0)
     e.preventDefault()
+
+    setpgQueryTimes(0);
+    setmongoQueryTimes(0);
 
     if (!formData.studentName || !formData.course) {
         toast("Validation Error", {
@@ -71,13 +74,20 @@ export function CompleteEnrollmentForm() {
     setIsLoading(true)
 
     try {
-      const time = Date.now()
-      const res = await axios.post(`http://localhost:8000/pg-insert-detail`, {
+      let time = Date.now()
+      
+      const res1 = await axios.post(`http://localhost:8000/pg-insert-detail`, {
         student: formData.studentName,
         course: formData.course
       })
-
-      setWriteQueryTimes(Date.now() - time);
+      setpgQueryTimes(Date.now() - time);
+      
+      time = Date.now()
+      const res2 = await axios.post(`http://localhost:8000/mongo-insert-detail`, {
+        student: formData.studentName,
+        course: formData.course
+      })
+      setmongoQueryTimes(Date.now() - time);
 
       toast("Enrollment Successful", {
         description: `${formData.studentName} has been enrolled in ${formData.course}`
@@ -143,7 +153,7 @@ export function CompleteEnrollmentForm() {
             {isLoading ? "Processing..." : "Enroll Student"}
           </Button>
 
-          <QueryTimeDisplay type={"Write"} queryTimes={writeQueryTimes} />
+          <QueryTimeDisplay type={"Write"} pgqueryTimes={pgQueryTimes} mongoQueryTimes={mongoQueryTimes} />
         </CardFooter>
       </form>
     </Card>

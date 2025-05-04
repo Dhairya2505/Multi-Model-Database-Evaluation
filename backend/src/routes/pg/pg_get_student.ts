@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { pg_client } from "../../client/pg-client.js"
 
-export const get_student = async (req: Request, res: Response) => {
+export const pg_get_student = async (req: Request, res: Response) => {
 
     const { student } = req.body;
 
